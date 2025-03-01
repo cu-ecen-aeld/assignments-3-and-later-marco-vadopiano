@@ -1,4 +1,10 @@
 #include "systemcalls.h"
+#include <stdlib.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -9,6 +15,10 @@
 */
 bool do_system(const char *cmd)
 {
+	int ret = system(cmd);
+	if (ret == 0)
+		return true;
+	return false;
 
 /*
  * TODO  add your code here
@@ -17,7 +27,6 @@ bool do_system(const char *cmd)
  *   or false() if it returned a failure
 */
 
-    return true;
 }
 
 /**
@@ -48,6 +57,32 @@ bool do_exec(int count, ...)
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
     command[count] = command[count];
+
+	int ret;
+	int status;
+
+	if(command[0][0]!='/')
+		return false;
+	pid_t pid;
+	pid = fork ();
+	if (pid == -1)
+		return false;
+	else if (pid == 0) {
+		ret = execv (command[0],command);
+		if (ret == -1)
+			return false;
+	}
+	pid = waitpid (pid, &status, 0);
+	if (pid == -1)
+		return false;
+	else {
+		if (WIFEXITED (status)) {
+			if (WEXITSTATUS (status) == 0)
+				return true;
+			return false;
+		}
+	}
+
 
 /*
  * TODO:
@@ -83,6 +118,35 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
     // this line is to avoid a compile warning before your implementation is complete
     // and may be removed
     command[count] = command[count];
+
+	if(command[0][0]!='/')
+		return false;
+	int fd = open(outputfile, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	if(fd>=0) {
+		int status;
+		pid_t pid;
+		pid=fork();
+		if(pid == -1)
+			return false;
+		else if(pid==0) {
+			if (dup2(fd, 1) < 0) { 
+				return false;
+			}
+			close(fd);
+			execv (command[0],command);
+			return false;
+		}
+		
+		if(waitpid(pid,&status,0) == -1) {
+			return false;
+		}
+		else if (WIFEXITED (status)) {
+			if (WEXITSTATUS(status)==0)
+				return true;
+			return false;
+		}
+		close(fd);
+	}
 
 
 /*
