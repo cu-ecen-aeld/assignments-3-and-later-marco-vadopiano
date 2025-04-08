@@ -7,6 +7,7 @@ set -e
 OUTDIR=$1
 
 if [ -z "${OUTDIR}" ]; then
+#    OUTDIR=/home/mab/aeld
     OUTDIR=/tmp/aeld
     echo "No outdir specified, using ${OUTDIR}"
 fi
