@@ -19,8 +19,8 @@ else
 	exit 1
 fi
 
-FILECOUNT="$(find "$filesdir" -type f -printf x | wc -c)"
-DIRCOUNT="$(find "$filesdir" -type d -printf x | wc -c)"
+FILECOUNT="$(find "$filesdir" -type f -print x | wc -c)"
+DIRCOUNT="$(find "$filesdir" -type d -print x | wc -c)"
 FILESMATCH="$(grep -oR "$searchstr" "$filesdir" | wc -l)"
 
 printf "The number of files are %s and the number of matching lines are %s\n" "$FILECOUNT" "$FILESMATCH"
