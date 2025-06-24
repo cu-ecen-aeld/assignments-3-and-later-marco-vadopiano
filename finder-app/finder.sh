@@ -1,20 +1,26 @@
 #!/bin/sh
-#Author:  
-# finder.sh <filesdir> <searchstr>
-#
+# Script for assignment 1
+# Author: Marco Bettini
 
-if [ $# != 2 ] || ! [ -d $1 ]; then
-	echo "use finder.sh <filesdir> <searchstr>"
+filesdir=$1
+searchstr=$2
+
+
+if [ $# -eq 2 ]
+then
+	if [ -d "$filesdir" ]
+	then
+		echo "$filesdir is a directory"
+	else
+		exit 1
+	fi
+else
+	echo "Bad number of parameters"
 	exit 1
 fi
 
-result=$( grep -rc $2 $1/* )
-numfile=0
-numfound=0
-for i in $result
-do
-    found=$(echo $i | awk -F':' '{print $2}')
-    numfound=$(( numfound + $found ))
-    numfile=$(($numfile + 1))
-done
-echo "The number of files are $numfile and the number of matching lines are $numfound"
+FILECOUNT="$(find "$filesdir" -type f -printf x | wc -c)"
+DIRCOUNT="$(find "$filesdir" -type d -printf x | wc -c)"
+FILESMATCH="$(grep -oR "$searchstr" "$filesdir" | wc -l)"
+
+printf "The number of files are %s and the number of matching lines are %s\n" "$FILECOUNT" "$FILESMATCH"
